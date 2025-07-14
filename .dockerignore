@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+.env
+.gitignore
+send_cookies_api.*
+cookie.json
