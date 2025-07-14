@@ -1,0 +1,13 @@
+ version: '3.9'
+
+services:
+  fb_story_bot:
+    build: .
+    ports:
+      - "5000:5000"
+    container_name: fb_story_bot
+    volumes:
+      - ./data/uploads:/data/uploads
+      - ./data/cookies:/data/cookies
+    environment:
+      - PYTHONUNBUFFERED=1
