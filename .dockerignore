@@ -5,5 +5,8 @@ __pycache__/
 *.log
 .env
 .gitignore
-send_cookies_api.*
-cookie.json
+client/send_cookies_api.py
+client/cookie.json
+*__pycache__*
+venv
+client

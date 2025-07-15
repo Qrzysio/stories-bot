@@ -1,5 +1,11 @@
+import os
+from pathlib import Path
+
 from flask import Flask, request, jsonify
 from playwright_bot_stories import post_story, save_cookies_json
+
+
+UPLOADS_DIR = Path("/data/uploads")
 
 app = Flask(__name__)
 
@@ -13,7 +19,12 @@ def handler():
 
     print(f"[API] REQUEST FOR POST STORY: image={image_path}, link={link}, id={service_id}")
     try:
-        status = post_story(image_path, link, service_id, headless)
+        status = post_story(
+            service_id=service_id,
+            image_path=image_path,
+            link=link,
+            headless=headless
+        )
         return jsonify({"status": status})
     except Exception as e:
         print(f"[ERROR] REQUEST FOR POST - NEGATIVE: {e}")
@@ -38,6 +49,25 @@ def upload_cookies():
     except Exception as e:
         print(f"[ERROR] COOKIES UPLOAD - NEGATIVE: {e}")
         return jsonify({"status": "error", "error": "Cookeis doesn't save"}), 500
+
+
+@app.route("/upload_image", methods=["POST"])
+def upload_image():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+
+    file = request.files['file']
+    filename = file.filename
+    if filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    try:
+        os.makedirs(UPLOADS_DIR, exist_ok=True)
+        save_path = UPLOADS_DIR / filename
+        file.save(save_path)
+        return jsonify({"status": "uploaded", "filename": filename}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':

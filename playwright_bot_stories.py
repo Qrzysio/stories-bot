@@ -135,6 +135,7 @@ def post_story(service_id: str, image_path: str, link: str = None, headless: boo
             sys.exit(1)
 
         # Wait for preview
+        time.sleep(random.randint(10,20))
         name = "Visible photo preview"
         selector_text = "img[src*='fbcdn']"
         checked = check_for(name, selector_text, page)
@@ -186,4 +187,4 @@ def post_story(service_id: str, image_path: str, link: str = None, headless: boo
 
 
 if __name__ == "__main__":
-   post_story(image_path="test.jpg", link="https://example.com", service_id="193617547354036", headless=True)
+   post_story(image_path="test.jpg", link="https://example.com", service_id="713714068490626", headless=False)
