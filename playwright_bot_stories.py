@@ -43,18 +43,27 @@ def load_cookies(context, service_id: str):
     return True
 
 
-def check_for(name, selector_text, page):
-    try:
-        page.wait_for_selector(f"{selector_text}", timeout=10000)
-        print(f"[SUCCESS] {name} - complete")
-        return True
-    except PlaywrightTimeoutError:
-        print(f"[WARNING] {name} - NEGATIVE")
+def check_for(name, selector_list, page):
+    wait = None
+
+    for selector_text in selector_list:
+        try:
+            wait = page.wait_for_selector(f"{selector_text}", timeout=10000)
+            print(f"[SUCCESS] {name} - complete")
+            break
+        except PlaywrightTimeoutError:
+            print(f"[WARNING] {name} - NEGATIVE")
+
+    if wait is None:
+        print(f"[WARNING] {name} on any language - NEGATIVE")
         return False
+
+    return True
 
 
 def hover_btn(page, browser, text_list):
     btn = None
+
     for text in text_list:
         try:
             locator = page.locator(f"div[role=button]:has-text('{text}')").first
@@ -106,22 +115,23 @@ def post_story(service_id: str, image_path: str, link: str = None, headless: boo
 
         # Verify login
         name = "Login"
-        selector_text = "a[aria-label=Home] >> text=Home"
-        if not check_for(name, selector_text, page):
+        selector_list = ["a[aria-label='Strona główna'] >> text=Strona główna", "a[aria-label='Home'] >> text=Home"]
+        if not check_for(name, selector_list, page):
             browser.close()
             sys.exit(1)
 
         # Click "Create Story"
-        text_list = ["Create Story", "Utwórz relację"]
+        text_list = ["Utwórz relację", "Create Story"]
         btn = hover_btn(page, browser, text_list)
         btn.click()
+
 
         # Wait for composer
         page.wait_for_url(f"**/{STORY_COMPOSER_URL_FRAGMENT}/**", timeout=15000)
         print("[SUCCESS] Story composer loaded")
 
         # Click "Add photo/video" with Filechooser interception
-        text_list = ["Add photo/video", "Dodaj zdjęcie/wideo"]
+        text_list = ["Dodaj zdjęcie/film", "Add photo/video"]
         btn = hover_btn(page, browser, text_list)
         try:
             with page.expect_file_chooser() as fc_info:
@@ -135,14 +145,25 @@ def post_story(service_id: str, image_path: str, link: str = None, headless: boo
             sys.exit(1)
 
         # Wait for preview
-        time.sleep(random.randint(10,20))
-        name = "Visible photo preview"
-        selector_text = "img[src*='fbcdn']"
-        checked = check_for(name, selector_text, page)
+        timeout = 30000
+        selector = 'img.img[src*="scontent"]'
+        deadline = time.time() + timeout / 1000
+
+        while time.time() < deadline:
+            try:
+                element = page.query_selector(selector)
+                if element:
+                    print(f"[SUCCESS] Visible photo preview")
+                    break
+            except Exception:
+                pass
+            time.sleep(0.5)
+        if not element:
+            print(f"[WARNING] {name} — превью не появилось за {timeout} мс.")
 
         # Link input
         if link:
-            link_texts = ["Add link", "Dodaj link", "Edit link", "Edytuj link"]
+            link_texts = ["Dodaj link", "Edytuj link", "Add link", "Edit link"]
             btn = hover_btn(page, browser, link_texts)
             btn.click()
             try:
@@ -156,11 +177,11 @@ def post_story(service_id: str, image_path: str, link: str = None, headless: boo
                 return
 
                 # Click "Apply"
-            apply_texts = ["Apply", "Zastosuj"]
+            apply_texts = ["Zastosuj", "Apply"]
             btn = hover_btn(page, browser, apply_texts)
             btn.click()
 
-        # Симуляция нажатий Tab 6 раз и Enter
+        # Simulation Tab 6 + Enter
         print("[INFO] Simulation Tab x6 + Enter")
         try:
             for _ in range(6):
@@ -187,4 +208,4 @@ def post_story(service_id: str, image_path: str, link: str = None, headless: boo
 
 
 if __name__ == "__main__":
-   post_story(image_path="test.jpg", link="https://example.com", service_id="713714068490626", headless=False)
+   post_story(image_path="test.jpg", link="https://example.com", service_id="193617547354036", headless=False)

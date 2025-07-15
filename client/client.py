@@ -12,11 +12,11 @@
 # Skopiuj obraz do tego folderu i zmień jego nazwę na image.jpg
 #
 # Wypełnij te pola:
-#
+
 SERVICE_ID_LIST = ["193617547354036",]
-#
+
 LINK = "example.com"
-#
+
 # Uruchom client.py
 #______________________________________________________________________________________________________
 

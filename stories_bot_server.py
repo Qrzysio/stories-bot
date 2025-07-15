@@ -19,13 +19,13 @@ def handler():
 
     print(f"[API] REQUEST FOR POST STORY: image={image_path}, link={link}, id={service_id}")
     try:
-        status = post_story(
+        post_story(
             service_id=service_id,
             image_path=image_path,
             link=link,
             headless=headless
         )
-        return jsonify({"status": status})
+        return jsonify({"status": "success", "message": f"Story for {service_id} posted successfully."})
     except Exception as e:
         print(f"[ERROR] REQUEST FOR POST - NEGATIVE: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
@@ -65,7 +65,7 @@ def upload_image():
         os.makedirs(UPLOADS_DIR, exist_ok=True)
         save_path = UPLOADS_DIR / filename
         file.save(save_path)
-        return jsonify({"status": "uploaded", "filename": filename}), 200
+        return jsonify({"status": "success", "message": f"{filename} uploaded successfully."}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
