@@ -1,21 +1,24 @@
-# Установи python, requests, json, chrome
-
-# В Chrome установи расширение "EditThisCookie V3"
-
-# Зайди на фб и залогинся
-
-# Зайди в расширение "EditThisCookie V3" и нажми сверху "Export"
-
-# Вставь данные cookie в файл cookie.json в этой папке (старые данные замени на новые)
-
-# Cкопируй изображение в эту же папку и переименуй его на image.jpg
-
-# Заполни эти поля:
-SERVICE_ID_LIST = ["193617547354036", "713714068490626"]
+#______________________________________________________________________________________________________
+# Zainstaluj python, requests, json, chrome
+#
+# W Chrome zainstaluj rozszerzenie "EditThisCookie V3"
+#
+# Zaloguj się na Facebooku
+#
+# Wejdź w rozszerzenie "EditThisCookie V3" i kliknij u góry "Export"
+#
+# Wklej dane cookie do pliku cookie.json w tym folderze (zastąp stare dane nowymi)
+#______________________________________________________________________________________________________
+# Skopiuj obraz do tego folderu i zmień jego nazwę na image.jpg
+#
+# Wypełnij te pola:
+#
+SERVICE_ID_LIST = ["193617547354036",]
+#
 LINK = "example.com"
-
-# Выполни client.py
-
+#
+# Uruchom client.py
+#______________________________________________________________________________________________________
 
 
 
