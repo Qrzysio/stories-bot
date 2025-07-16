@@ -1,5 +1,5 @@
 #______________________________________________________________________________________________________
-# Zainstaluj python, requests, json, chrome
+# Zainstaluj python, requests, json, chrome (bot dziala w dockerze z chromem)
 #
 # W Chrome zainstaluj rozszerzenie "EditThisCookie V3"
 #
@@ -7,15 +7,15 @@
 #
 # Wejdź w rozszerzenie "EditThisCookie V3" i kliknij u góry "Export"
 #
-# Wklej dane cookie do pliku cookie.json w tym folderze (zastąp stare dane nowymi)
+# Wklej dane cookie do pliku "cookie.json" w tym folderze (zastąp stare dane nowymi)
 #______________________________________________________________________________________________________
-# Skopiuj obraz do tego folderu i zmień jego nazwę na image.jpg
+# Skopiuj obraz do 'client' folderu i zmień jego nazwę na "image.jpg"
 #
 # Wypełnij te pola:
 
 SERVICE_ID_LIST = ["193617547354036",]
 
-LINK = "example.com"
+LINK = "examo.com"
 
 # Uruchom client.py
 #______________________________________________________________________________________________________

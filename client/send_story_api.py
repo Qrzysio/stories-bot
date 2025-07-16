@@ -3,7 +3,7 @@ import requests
 
 
 def send_story_api(service_id, image_path, link):
-    url = "http://localhost:5000/post_story"
+    url = "http://srv10.mikr.us:20149/post_story"
 
     payload = {
         "service_id": service_id,

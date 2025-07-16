@@ -4,7 +4,7 @@ import requests
 
 
 def send_cookies_api(cookies_path, service_id):
-
+    url = "http://srv10.mikr.us:20149/upload_cookies"
     # Download cookie from file
     with open(cookies_path, "r", encoding="utf-8") as f:
         cookies = json.load(f)
@@ -17,7 +17,7 @@ def send_cookies_api(cookies_path, service_id):
 
     # Send POST-request
     response = requests.post(
-        "http://localhost:5000/upload_cookies",
+        url,
         headers={"Content-Type": "application/json"},
         json=payload
     )
