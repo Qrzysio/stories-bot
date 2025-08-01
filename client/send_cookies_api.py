@@ -1,6 +1,5 @@
 import json
 import requests
-# from client.client import COOKIES_FILE_NAME, SERVICE_ID
 
 
 def send_cookies_api(cookies_path, service_id):
@@ -26,6 +25,3 @@ def send_cookies_api(cookies_path, service_id):
     print(f"Status: {response.status_code}")
     print("Response:", response.json())
 
-
-# if __name__ == "__main__":
-#     send_cookies_api(COOKIES_FILE_NAME, SERVICE_ID)

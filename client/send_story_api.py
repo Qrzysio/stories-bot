@@ -1,14 +1,14 @@
 import requests
-# from client.client import SERVICE_ID, FILE_NAME, LINK
 
 
-def send_story_api(service_id, image_path, link):
+def send_story_api(service_id, image_path, link, hash_data):
     url = "http://srv10.mikr.us:20149/post_story"
 
     payload = {
         "service_id": service_id,
         "image_path": image_path,
         "link": link,
+        "hash": hash_data,
         "headless": True
     }
 
@@ -16,8 +16,3 @@ def send_story_api(service_id, image_path, link):
 
     print("Status:", response.status_code)
     print("Response:", response.json())
-
-
-
-# if __name__ == "__main__":
-#     send_story_api(SERVICE_ID, FILE_NAME, LINK)

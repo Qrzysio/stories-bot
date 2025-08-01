@@ -5,6 +5,6 @@ COPY requirements.txt ./
 RUN  pip install --no-cache-dir -r requirements.txt
 COPY . .
 
-RUN mkdir -p /data/uploads /data/cookies
+RUN mkdir -p /data/cookies
 
 CMD ["python", "stories_bot_server.py"]

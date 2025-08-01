@@ -2,6 +2,7 @@ version: '3.9'
 
 services:
   fb_story_bot:
+#    build: .                 #del on server
     image: mybot:latest
     container_name: fb_story_bot
     ports:
