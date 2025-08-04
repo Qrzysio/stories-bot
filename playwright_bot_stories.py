@@ -5,6 +5,8 @@ import time
 import yaml
 import requests
 import tempfile
+from io import BytesIO
+from PIL import Image
 from pathlib import Path
 from urllib.parse import urlparse
 from playwright.sync_api import (
@@ -20,6 +22,7 @@ CONFIG_PATH = Path("config.yaml")
 # Constants
 FB_HOME_URL = "https://business.facebook.com/latest/home"
 STORY_COMPOSER_URL_FRAGMENT = "story_composer"
+ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"]
 
 
 def load_config():
@@ -28,26 +31,47 @@ def load_config():
     return config.get("fb_profiles", {})
 
 
-def download_image(url):
+def validate_image_from_url(url):
     try:
-        print(f"[INFO] Downloading image from URL")
+        print("[INFO] Validating image from URL...")
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
-        # Let's check what this image is — let's look at Content-Type
         content_type = response.headers.get('Content-Type', '')
-        if not content_type.startswith('image/'):
-            return None, f"URL does not point to an image (Content-Type: {content_type})"
+        if content_type not in ACCEPTED_MIME_TYPES:
+            return None, f"Unsupported image format (Content-Type: {content_type})"
 
-        # Save to a temporary file
+        image_bytes = BytesIO(response.content)
+        try:
+            img = Image.open(image_bytes)
+            img.verify()  # Проверка на повреждение
+        except Exception as e:
+            return None, f"Image failed verification: {e}"
+
+        image_bytes.seek(0)
+        img = Image.open(image_bytes)
+
+        if img.height <= img.width:
+            return None, "Image is not portrait (height must be greater than width)"
+
+        return response.content, None  # Return the content to save for later
+
+    except requests.HTTPError as http_err:
+        return None, f"HTTP error: {http_err}"
+    except requests.RequestException as req_err:
+        return None, f"Request error: {req_err}"
+    except Exception as e:
+        return None, f"Unexpected error: {e}"
+
+def download_image(image_bytes):
+    try:
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".jpg")
-        temp_file.write(response.content)
+        temp_file.write(image_bytes)
         temp_file.close()
-        print(f"[SUCCESS] Image downloaded to temp file: {temp_file}")
+        print(f"[SUCCESS] Image saved to temp file: {temp_file.name}")
         return temp_file.name, None
-    except Exception:
-        print(f"[ERROR] Failed to download image from URL")
-        return None
+    except Exception as e:
+        return None, f"Failed to save image to temp file: {e}"
 
 
 def is_url_valid(text: str) -> bool:
@@ -91,7 +115,7 @@ def check_for(name, selector_list, page):
 
     for selector_text in selector_list:
         try:
-            wait = page.wait_for_selector(f"{selector_text}", timeout=10000)
+            wait = page.wait_for_selector(f"{selector_text}", timeout=6000)
             print(f"[SUCCESS] {name} - complete")
             break
         except PlaywrightTimeoutError:
@@ -110,7 +134,7 @@ def hover_btn(page, browser, text_list):
     for text in text_list:
         try:
             locator = page.locator(f"div[role=button]:has-text('{text}')").first
-            locator.wait_for(state="visible", timeout=7000)
+            locator.wait_for(state="visible", timeout=10000)
             time.sleep(0.3)
             locator.scroll_into_view_if_needed()
             locator.hover()
@@ -148,7 +172,7 @@ def post_story(service_id: str, image_path: str, link: str = None, headless: boo
 
         page = context.new_page()
         # Go to FB home with asset_id to open composer directly
-        page.goto(f"{FB_HOME_URL}?asset_id={service_id}", timeout=60000)
+        page.goto(f"{FB_HOME_URL}?asset_id={service_id}", timeout=10000)
 
         # Verify login
         name = "Login"
@@ -167,9 +191,8 @@ def post_story(service_id: str, image_path: str, link: str = None, headless: boo
             raise Exception(f"Click 'Create Story' btn failed")
         btn.click()
 
-
         # Wait for composer
-        page.wait_for_url(f"**/{STORY_COMPOSER_URL_FRAGMENT}/**", timeout=15000)
+        page.wait_for_url(f"**/{STORY_COMPOSER_URL_FRAGMENT}/**", timeout=7000)
         print("[SUCCESS] Story composer loaded")
 
         # Click "Add photo/video" with Filechooser interception
@@ -192,7 +215,7 @@ def post_story(service_id: str, image_path: str, link: str = None, headless: boo
             raise Exception(f"Filechooser interception failed")
 
         # Wait for preview
-        timeout = 30000
+        timeout = 7000
         selector = 'img.img[src*="scontent"]'
         deadline = time.time() + timeout / 1000
 
@@ -247,7 +270,6 @@ def post_story(service_id: str, image_path: str, link: str = None, headless: boo
             time.sleep(random.randint(1, 3))
             page.keyboard.press("Enter")
             print("[SUCCESS] Simulation - complete")
-            time.sleep(random.randint(10, 15))
         except Exception:
             print(f"[ERROR] Simulation Tab x6 + Enter - negative")
             context.close()

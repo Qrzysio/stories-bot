@@ -4,8 +4,7 @@ from playwright_bot_stories import (
     post_story,
     save_cookies_json,
     load_config,
-    download_image,
-    is_url_valid,
+    is_url_valid, validate_image_from_url, download_image,
 )
 
 
@@ -57,11 +56,18 @@ def handler():
     if client_hash != server_hash:
         return jsonify({"status": "error", "error": "Hash mismatch"}), 400
 
-    # Download image
-    image_url = data.get("image_path")
-    image_file, error = download_image(image_url)
+    # Image verification
+    image_bytes, error = validate_image_from_url(image_path)
     if error:
-        return jsonify({"status": "error", "error": f"Failed to download image: {error}"}), 400
+        return jsonify({
+            "status": "error",
+            "error": f"Image validation failed: {error}"
+        }), 400
+
+    # Download image
+    image_file, error = download_image(image_bytes)
+    if error:
+        return jsonify({"status": "error", "error": f"{error}"}), 400
 
     # Check link
     if not is_url_valid(link):
@@ -79,7 +85,7 @@ def handler():
         print(f"[ERROR] REQUEST FOR POST - NEGATIVE: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
     finally:
-        if os.path.exists(image_file):
+        if image_file and os.path.exists(image_file):
             os.remove(image_file)
 
 
