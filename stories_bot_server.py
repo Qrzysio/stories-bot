@@ -4,7 +4,9 @@ from playwright_bot_stories import (
     post_story,
     save_cookies_json,
     load_config,
-    is_url_valid, validate_image_from_url, download_image,
+    is_url_valid,
+    validate_image_from_url,
+    download_image,
 )
 
 

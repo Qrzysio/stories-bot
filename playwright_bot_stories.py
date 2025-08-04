@@ -2,6 +2,8 @@ import os
 import random
 import json
 import time
+
+import validators
 import yaml
 import requests
 import tempfile
@@ -23,6 +25,7 @@ CONFIG_PATH = Path("config.yaml")
 FB_HOME_URL = "https://business.facebook.com/latest/home"
 STORY_COMPOSER_URL_FRAGMENT = "story_composer"
 ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"]
+MAX_IMAGE_SIZE = 2 * 1024 * 1024
 
 
 def load_config():
@@ -37,20 +40,31 @@ def validate_image_from_url(url):
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
+        # Сontent type validation
         content_type = response.headers.get('Content-Type', '')
         if content_type not in ACCEPTED_MIME_TYPES:
-            return None, f"Unsupported image format (Content-Type: {content_type})"
+            return None, f"Unsupported Content-Type format (Content-Type: {content_type})"
 
+        # File size validation
+        if len(response.content) > 2 * 1024 * 1024:
+            return None, "Image size exceeds 2MB limit"
+
+        # Damage check
         image_bytes = BytesIO(response.content)
         try:
             img = Image.open(image_bytes)
-            img.verify()  # Проверка на повреждение
+            img.verify()  # Damage check
         except Exception as e:
             return None, f"Image failed verification: {e}"
 
+        # Image format validation
+        img = Image.open(image_bytes)
+        if img.format not in ("JPG","JPEG", "PNG", "WEBP"):
+            return None, f"Unsupported image format (actual format: {img.format})"
+
+        # Image size validation
         image_bytes.seek(0)
         img = Image.open(image_bytes)
-
         if img.height <= img.width:
             return None, "Image is not portrait (height must be greater than width)"
 
@@ -64,6 +78,7 @@ def validate_image_from_url(url):
         return None, f"Unexpected error: {e}"
 
 def download_image(image_bytes):
+    temp_file = None
     try:
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".jpg")
         temp_file.write(image_bytes)
@@ -71,15 +86,17 @@ def download_image(image_bytes):
         print(f"[SUCCESS] Image saved to temp file: {temp_file.name}")
         return temp_file.name, None
     except Exception as e:
+        # Delete the file if it was created
+        if temp_file is not None:
+            try:
+                os.remove(temp_file.name)
+            except Exception as cleanup_err:
+                print(f"[WARNING] Failed to remove temp file: {cleanup_err}")
         return None, f"Failed to save image to temp file: {e}"
 
 
 def is_url_valid(text: str) -> bool:
-    try:
-        parsed = urlparse(text)
-        return parsed.scheme in ("http", "https") and bool(parsed.netloc)
-    except Exception:
-        return False
+    return validators.url(text) is True
 
 
 def save_cookies_json(service_id, cookies):
