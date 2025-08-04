@@ -47,7 +47,7 @@ def validate_image_from_url(url):
 
         # File size validation
         if len(response.content) > 2 * 1024 * 1024:
-            return None, "Image size exceeds 2MB limit"
+            return None, "Image size exceeds MAX_IMAGE_SIZE limit"
 
         # Damage check
         image_bytes = BytesIO(response.content)
@@ -59,7 +59,7 @@ def validate_image_from_url(url):
 
         # Image format validation
         img = Image.open(image_bytes)
-        if img.format not in ("JPG","JPEG", "PNG", "WEBP"):
+        if img.format not in ("JPEG", "PNG", "WEBP"):
             return None, f"Unsupported image format (actual format: {img.format})"
 
         # Image size validation
