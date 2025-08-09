@@ -36,7 +36,7 @@ def handler():
         return jsonify({"status": "error", "error": "service_id is required"}), 400
 
     # Check headless exist
-    if not headless:
+    if headless is None:
         return jsonify({"status": "error", "error": "headless is required"}), 400
 
     # Check client_hash exist

@@ -279,9 +279,9 @@ def post_story(service_id: str, image_path: str, link: str = None, headless: boo
             btn.click()
 
         # Simulation Tab 6 + Enter
-        print("[INFO] Simulation Tab x6 + Enter")
+        print("[INFO] Simulation Tab x8 + Enter")
         try:
-            for _ in range(6):
+            for _ in range(8):
                 page.keyboard.press("Tab")
                 time.sleep(0.2)
             time.sleep(random.randint(1, 3))
