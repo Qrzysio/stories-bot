@@ -76,11 +76,16 @@ def handler():
         return jsonify({"status": "error", "error": "Invalid link URL"}), 400
 
     try:
+        num_tabs = fb_profiles[service_id].get("num_clicks_to_publish")
+        if not num_tabs:
+            num_tabs = 8
+
         post_story(
             service_id=service_id,
             image_path=image_file,
             link=link,
-            headless=headless
+            headless=headless,
+            num_tabs=num_tabs
         )
         return jsonify({"status": "success", "message": f"Story for {service_id} posted successfully."}), 200
     except Exception as e:

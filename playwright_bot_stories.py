@@ -167,8 +167,9 @@ def hover_btn(page, browser, text_list):
     return btn
 
 
-def post_story(service_id: str, image_path: str, link: str = None, headless: bool = True):
+def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None, headless: bool = True):
     with sync_playwright() as p:
+
         # Launch browser
         browser = p.chromium.launch(
             headless=headless,
@@ -278,21 +279,20 @@ def post_story(service_id: str, image_path: str, link: str = None, headless: boo
                 raise Exception(f"Click 'Apply' btn failed")
             btn.click()
 
-        # Simulation Tab 6 + Enter
-        print("[INFO] Simulation Tab x8 + Enter")
+        # Simulation Tab + Enter
+        print("[INFO] Simulation Tab + Enter")
         try:
-            for _ in range(8):
+            for _ in range(num_tabs):
                 page.keyboard.press("Tab")
                 time.sleep(0.2)
             time.sleep(random.randint(1, 3))
             page.keyboard.press("Enter")
             print("[SUCCESS] Simulation - complete")
         except Exception:
-            print(f"[ERROR] Simulation Tab x6 + Enter - negative")
+            print(f"[ERROR] Simulation Tab + Enter - negative")
             context.close()
             browser.close()
-            raise Exception(f"Simulation Tab x6 + Enter - negative")
-
+            raise Exception(f"Simulation Tab + Enter - negative")
 
         # Check for published
         try:
