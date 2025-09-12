@@ -37,10 +37,6 @@ def enqueue_story():
     if not service_id:
         return jsonify({"status": "error", "error": "service_id is required"}), 400
 
-    # # Check headless exist
-    # if headless is None:
-    #     return jsonify({"status": "error", "error": "headless is required"}), 400
-
     # Check client_hash exist
     if not client_hash:
         return jsonify({"status": "error", "message": "client_hash is required"}), 400
@@ -87,6 +83,27 @@ def enqueue_story():
         return jsonify({"status": "success", "id": story.id}), 200
     finally:
         session.close()
+
+
+@app.route('/upload_cookies', methods=['POST'])
+def upload_cookies():
+    data = request.get_json()
+    service_id = data.get('service_id')
+    cookies = data.get('cookies')
+
+    print(f"[API] REQUEST FOR UPLOAD COOKIES")
+
+    if not service_id or not cookies:
+        print("[ERROR] Should send 'service_id' and 'cookies'")
+        return jsonify({"status": "error", "error": "'Service_id' and 'cookies' required"}), 400
+
+    try:
+        save_cookies_json(service_id, cookies)
+        print("[SUCCESS] COOKIES UPLOAD - COMPLETE")
+        return jsonify({"status": "success", "message": f"Cookies for {service_id} saved."}), 200
+    except Exception as e:
+        print(f"[ERROR] COOKIES UPLOAD - NEGATIVE: {e}")
+        return jsonify({"status": "error", "error": "Cookeis doesn't save"}), 500
 
 
 
