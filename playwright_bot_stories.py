@@ -296,9 +296,8 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
 
         # Check for published
         try:
-            content_url = f"https://business.facebook.com/latest/content_calendar?asset_id={service_id}"
-            page.wait_for_url(content_url, timeout=10000)
-            print(f"[SUCCESS] Story published on {content_url}")
+            page.wait_for_url("**/*content_calendar*", timeout=30000)
+            print(f"[SUCCESS] Story published successfully")
         except PlaywrightTimeoutError:
             print("[WARNING] Story DOES NOT published")
             raise Exception(f"Story DOES NOT published")

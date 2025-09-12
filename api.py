@@ -16,7 +16,7 @@ Base.metadata.create_all(engine)
 app = Flask(__name__)
 fb_profiles = load_config()
 
-@app.route("/enqueue_story", methods=["POST"])
+@app.route("/post_story", methods=["POST"])
 def enqueue_story():
     data = request.get_json()
     service_id = data.get("service_id")
@@ -80,7 +80,12 @@ def enqueue_story():
 
         session.add(story)
         session.commit()
-        return jsonify({"status": "success", "id": story.id}), 200
+        return jsonify({
+            "status": "success",
+            "job_id": story.id,
+            "message": "Przyjeto do publikacji",
+            "data": story.created_at.strftime("%Y-%m-%d %H:%M:%S")
+        }), 202
     finally:
         session.close()
 
@@ -104,15 +109,6 @@ def upload_cookies():
     except Exception as e:
         print(f"[ERROR] COOKIES UPLOAD - NEGATIVE: {e}")
         return jsonify({"status": "error", "error": "Cookeis doesn't save"}), 500
-
-
-
-# webhook_url = fb_profiles[service_id].get("webhook_url")
-
-# # Download image
-# image_file, error = download_image(image_bytes)
-# if error:
-#     return jsonify({"status": "error", "error": f"{error}"}), 400
 
 
 if __name__ == "__main__":
