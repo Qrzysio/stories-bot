@@ -22,7 +22,6 @@ def enqueue_story():
     service_id = data.get("service_id")
     image_url = data.get("image_url")
     link = data.get("link")
-    webhook_url = data.get("webhook_url")
     headless = data.get("headless")
     client_hash = data.get("hash")
 
@@ -38,17 +37,13 @@ def enqueue_story():
     if not service_id:
         return jsonify({"status": "error", "error": "service_id is required"}), 400
 
-    # Check headless exist
-    if headless is None:
-        return jsonify({"status": "error", "error": "headless is required"}), 400
+    # # Check headless exist
+    # if headless is None:
+    #     return jsonify({"status": "error", "error": "headless is required"}), 400
 
     # Check client_hash exist
     if not client_hash:
         return jsonify({"status": "error", "message": "client_hash is required"}), 400
-
-    # Check webhook_url exist
-    if not webhook_url:
-        return jsonify({"status": "error", "message": "webhook_url is required"}), 400
 
     print(f"[API] REQUEST FOR ADDING TO QUEUE: image={image_url}, link={link}, id={service_id}")
 
@@ -77,24 +72,12 @@ def enqueue_story():
     if not is_url_valid(link):
         return jsonify({"status": "error", "error": "Invalid link URL"}), 400
 
-    # Check webhook_url
-    if not is_url_valid(webhook_url):
-        return jsonify({"status": "error", "error": "Invalid webhook URL"}), 400
-
-
-    # # Download image
-    # image_file, error = download_image(image_bytes)
-    # if error:
-    #     return jsonify({"status": "error", "error": f"{error}"}), 400
-
-
     session = SessionLocal()
     try:
         story = StoryQueue(
             service_id=service_id,
             image_url=image_url,
             link=link,
-            webhook_url=webhook_url,
             status="pending",
             headless=headless,
         )
@@ -104,6 +87,15 @@ def enqueue_story():
         return jsonify({"status": "success", "id": story.id}), 200
     finally:
         session.close()
+
+
+
+# webhook_url = fb_profiles[service_id].get("webhook_url")
+
+# # Download image
+# image_file, error = download_image(image_bytes)
+# if error:
+#     return jsonify({"status": "error", "error": f"{error}"}), 400
 
 
 if __name__ == "__main__":

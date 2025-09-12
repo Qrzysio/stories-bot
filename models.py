@@ -9,7 +9,6 @@ class StoryQueue(Base):
     service_id = Column(String, nullable=False)
     image_url = Column(String, nullable=False)
     link = Column(String)
-    webhook_url = Column(String)
     status = Column(String, default="pending")  # pending, in_progress, retry_scheduled, success, webhook_pending, completed, failed, webhook_failed
     headless = Column(Boolean, nullable=False, default=True)
     retries = Column(Integer, default=0)

@@ -10,3 +10,4 @@ client/cookie.json
 *__pycache__*
 venv
 client
+stories.db

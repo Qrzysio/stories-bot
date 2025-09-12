@@ -9,7 +9,7 @@ def send_story_api(service_id, image_path, link, hash_data):
         "image_url": image_path,
         "link": link,
         "hash": hash_data,
-        "headless": True
+        "headless": True            #not necessarily
     }
 
     response = requests.post(url, json=payload)
