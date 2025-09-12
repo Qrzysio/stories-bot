@@ -247,7 +247,7 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
                 pass
             time.sleep(0.5)
         if not element:
-            print(f"[WARNING] {name} — no preview for {timeout} ms.")
+            print(f"[WARNING] {name} — no prewiev for {timeout} ms.")
 
         # Link input
         if link:

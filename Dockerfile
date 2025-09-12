@@ -7,4 +7,5 @@ COPY . .
 
 RUN mkdir -p /data/cookies
 
-CMD ["python", "stories_bot_server.py"]
+#CMD ["python", "stories_bot_server.py"]
+CMD ["python", "api.py"]

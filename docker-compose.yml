@@ -1,12 +1,34 @@
+#version: '3.9'
+#
+#services:
+#  fb_story_bot:
+##    build: .                 #del on server
+#    image: mybot:latest
+#    container_name: fb_story_bot
+#    ports:
+#      - "20149:5000"
+#    environment:
+#      - PYTHONUNBUFFERED=1
+#    restart: unless-stopped
+
+
 version: '3.9'
 
 services:
-  fb_story_bot:
-#    build: .                 #del on server
+  fb_story_api:
     image: mybot:latest
-    container_name: fb_story_bot
+    container_name: fb_story_api
     ports:
       - "20149:5000"
     environment:
       - PYTHONUNBUFFERED=1
     restart: unless-stopped
+    command: python api.py
+
+  fb_story_worker:
+    image: mybot:latest
+    container_name: fb_story_worker
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    command: python worker.py
