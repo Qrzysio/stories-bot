@@ -1,6 +1,5 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean
-from sqlalchemy.sql import func
 from db import Base
 
 class StoryQueue(Base):
@@ -20,3 +19,4 @@ class StoryQueue(Base):
     last_error = Column(Text)
     webhook_tries = Column(Integer, default=0)
     webhook_next_attempt = Column(DateTime)
+    format = Column(String)  # image | film

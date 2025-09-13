@@ -3,12 +3,10 @@ from flask import Flask, request, jsonify
 from db import SessionLocal, engine
 from models import Base, StoryQueue
 from playwright_bot_stories import (
-    post_story,
     save_cookies_json,
     load_config,
     is_url_valid,
     validate_image_from_url,
-    download_image,
 )
 
 Base.metadata.create_all(engine)
@@ -24,6 +22,7 @@ def enqueue_story():
     link = data.get("link")
     headless = data.get("headless")
     client_hash = data.get("hash")
+    format = data.get("format")
 
     # Check image_path exist
     if not image_url:
@@ -39,18 +38,24 @@ def enqueue_story():
 
     # Check client_hash exist
     if not client_hash:
-        return jsonify({"status": "error", "message": "client_hash is required"}), 400
+        return jsonify({"status": "error", "error": "client_hash is required"}), 400
 
     print(f"[API] REQUEST FOR ADDING TO QUEUE: image={image_url}, link={link}, id={service_id}")
 
     # Checking service_id in config
     if service_id not in fb_profiles:
-        return jsonify({"status": "error", "message": f"Service ID {service_id} not found in config file"}), 400
+        return jsonify({"status": "error", "error": f"Service ID {service_id} not found in config file"}), 400
 
     # Check if this service_id has a hash in the config
     server_hash = fb_profiles[service_id].get("hash")
     if not server_hash:
         return jsonify({"status": "error", "error": f"No hash defined for service_id in config file'{service_id}'"}), 400
+
+    # Check if format has a valid value
+    valid_format =["image", "film"]
+    if format:
+        if format not in valid_format:
+            return jsonify({"status": "error", "error": "format value should be 'image' or 'film'"}), 400
 
     # Comparing hashes
     if client_hash != server_hash:
@@ -76,6 +81,7 @@ def enqueue_story():
             link=link,
             status="pending",
             headless=headless,
+            format=format if format else "image"
         )
 
         session.add(story)
@@ -109,6 +115,44 @@ def upload_cookies():
     except Exception as e:
         print(f"[ERROR] COOKIES UPLOAD - NEGATIVE: {e}")
         return jsonify({"status": "error", "error": "Cookeis doesn't save"}), 500
+
+
+@app.route("/get_db_data", methods=["POST"])
+def get_db_data():
+    data = request.get_json()
+    client_hash = data.get("hash")
+
+    if not client_hash:
+        return jsonify({"status": "error", "error": "client hash is required"}), 400
+
+    print(f"[API] REQUEST FOR DB DATA")
+
+    if not any(cfg.get("hash") == client_hash for cfg in fb_profiles.values()):
+        return jsonify({"status": "error", "error": "Invalid client hash"}), 403
+
+    session = SessionLocal()
+    try:
+        stories = session.query(StoryQueue).all()
+        result = []
+        for s in stories:
+            result.append({
+                "job_id": s.id,
+                "service_id": s.service_id,
+                "image_url": s.image_url,
+                "link": s.link,
+                "status": s.status,
+                "format": s.format,
+                "retries": s.retries,
+                "max_retries": s.max_retries,
+                "next_attempt": s.next_attempt.strftime("%Y-%m-%d %H:%M:%S") if s.next_attempt else None,
+                "created_at": s.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                "updated_at": s.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+                "last_error": s.last_error,
+            })
+
+        return jsonify({"status": "success", "stories": result}), 200
+    finally:
+        session.close()
 
 
 if __name__ == "__main__":

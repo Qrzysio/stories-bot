@@ -1,6 +1,7 @@
 import os
 import random
 import json
+import subprocess
 import time
 
 import validators
@@ -10,7 +11,6 @@ import tempfile
 from io import BytesIO
 from PIL import Image
 from pathlib import Path
-from urllib.parse import urlparse
 from playwright.sync_api import (
     sync_playwright,
     TimeoutError as PlaywrightTimeoutError
@@ -95,6 +95,75 @@ def download_image(image_bytes):
         return None, f"Failed to save image to temp file: {e}"
 
 
+def convert_to_mp4(input_file):
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video_file:
+        output_file = temp_video_file.name
+
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio_file:
+        audio_file = temp_audio_file.name
+
+    try:
+
+        cmd_audio = [
+            "ffmpeg",
+            "-y",
+            "-f", "lavfi",
+            "-i", "anoisesrc=color=white:amplitude=0.001:r=44100",
+            "-t", "10",
+            "-q:a", "9",
+            audio_file
+        ]
+        result_audio = subprocess.run(cmd_audio, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        if result_audio.returncode != 0:
+            os.remove(audio_file)
+            return None, f"ffmpeg error (audio generation): {result_audio.stderr}"
+
+
+        cmd_video = [
+            "ffmpeg",
+            "-y",
+            "-loop", "1",
+            "-i", input_file,
+            "-i", audio_file,
+            "-shortest",
+            "-t", "10",
+            "-c:v", "libx264",
+            "-profile:v", "high",
+            "-level", "4.1",
+            "-crf", "34",
+            "-preset", "faster",
+            "-g", "60",
+            "-r", "30",
+            "-c:a", "aac",
+            "-b:a", "64k",
+            "-pix_fmt", "yuv420p",
+            "-movflags", "+faststart",
+            "-vf", "scale=1080:1920:force_original_aspect_ratio=decrease",
+            output_file
+        ]
+        result_video = subprocess.run(cmd_video, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+
+        if os.path.exists(audio_file):
+            os.remove(audio_file)
+
+        if result_video.returncode != 0:
+            if os.path.exists(output_file):
+                os.remove(output_file)
+            return None, f"ffmpeg error (video generation): {result_video.stderr}"
+
+        return output_file, None
+
+    except Exception as e:
+        if os.path.exists(output_file):
+            os.remove(output_file)
+        if os.path.exists(audio_file):
+            os.remove(audio_file)
+        return None, str(e)
+
+
 def is_url_valid(text: str) -> bool:
     return validators.url(text) is True
 
@@ -151,7 +220,7 @@ def hover_btn(page, browser, text_list):
     for text in text_list:
         try:
             locator = page.locator(f"div[role=button]:has-text('{text}')").first
-            locator.wait_for(state="visible", timeout=10000)
+            locator.wait_for(state="visible", timeout=300000)
             time.sleep(0.3)
             locator.scroll_into_view_if_needed()
             locator.hover()
@@ -171,7 +240,7 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
     with sync_playwright() as p:
 
         # Launch browser
-        browser = p.chromium.launch(
+        browser = p.firefox.launch(
             headless=headless,
             args = [
                 "--disable-notifications",
@@ -245,7 +314,7 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
                     break
             except Exception:
                 pass
-            time.sleep(0.5)
+            time.sleep(random.randint(1, 4))
         if not element:
             print(f"[WARNING] {name} — no prewiev for {timeout} ms.")
 

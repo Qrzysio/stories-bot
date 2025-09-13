@@ -16,7 +16,7 @@ version: '3.9'
 
 services:
   fb_story_api:
-    image: mybot:latest
+    image: mybot_v2:latest
     container_name: fb_story_api
     ports:
       - "20149:5000"

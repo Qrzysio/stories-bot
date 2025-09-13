@@ -8,7 +8,8 @@ from playwright_bot_stories import (
     post_story,
     download_image,
     validate_image_from_url,
-    load_config
+    load_config,
+    convert_to_mp4
 )
 
 
@@ -55,15 +56,34 @@ def process_story(story, session):
         if error:
             return jsonify({"status": "error", "error": f"{error}"}), 400
 
-        instagram = fb_profiles[story.service_id].get("has_instagram")
-        if instagram is True:
-            num_tabs =  8
+        # Convert to mp4
+        if story.format == "film":
+            converted_file, error = convert_to_mp4(image_file)
+            if error:
+                story.status = "failed"
+                story.last_error = f"FFMPEG error: {error}"
+                story.next_attempt = None
+                session.commit()
+                print(f"[WORKER] Story {story.id} failed at ffmpeg: {error}")
+                return
+            media_file = converted_file
+            print(f"[WORKER] Media file converted via ffmpeg to .mp4")
+            instagram = fb_profiles[story.service_id].get("has_instagram")
+            if instagram is True:
+                num_tabs = 12
+            else:
+                num_tabs = 10
         else:
-            num_tabs = 6
+            media_file = image_file
+            instagram = fb_profiles[story.service_id].get("has_instagram")
+            if instagram is True:
+                num_tabs = 8
+            else:
+                num_tabs = 6
 
         post_story(
             service_id=story.service_id,
-            image_path=image_file,
+            image_path=media_file,
             link=story.link,
             headless=story.headless,
             num_tabs=num_tabs
