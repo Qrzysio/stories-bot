@@ -11,14 +11,13 @@
 #      - PYTHONUNBUFFERED=1
 #    restart: unless-stopped
 
-
 version: '3.9'
 
 services:
   fb_story_api:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile.api
+    build:
+      context: .
+      dockerfile: Dockerfile.api
     image: bot-relacje-facebook-playwrite_fb_story_api:latest
     container_name: fb_story_api
     ports:
@@ -32,15 +31,19 @@ services:
     restart: unless-stopped
 
   fb_story_worker:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile.worker
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
     image: bot-relacje-facebook-playwrite_fb_story_worker:latest
     container_name: fb_story_worker
+    ports:
+      - "127.0.0.1:6080:6080"   # noVNC web
+      - "127.0.0.1:5900:5900"   # VNC клиент
     volumes:
       - /data/stories.db:/app/stories.db
       - /data/cookies:/data/cookies
       - /data/config.yaml:/app/config.yaml
     environment:
       - PYTHONUNBUFFERED=1
+      - DISPLAY=:99
     restart: unless-stopped

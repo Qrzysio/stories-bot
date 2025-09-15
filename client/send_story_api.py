@@ -2,7 +2,7 @@ import requests
 
 
 def send_story_api(service_id, image_path, link, hash_data):
-    url = "http://srv10.mikr.us:20149/post_story"
+    url = "http://localhost:20149/post_story"
 
     payload = {
         "service_id": service_id,
@@ -10,7 +10,7 @@ def send_story_api(service_id, image_path, link, hash_data):
         "image_url": image_path,
         "link": link,
         "hash": hash_data,
-        "headless": True,            #not necessarily
+        "headless": False,            #not necessarily
         "format": "film"            #not necessarily
     }
 

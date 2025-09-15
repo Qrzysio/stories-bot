@@ -196,12 +196,12 @@ def load_cookies(context, service_id: str):
     return True
 
 
-def check_for(name, selector_list, page):
+def check_for(name, selector_list, page, timeout=6000):
     wait = None
 
     for selector_text in selector_list:
         try:
-            wait = page.wait_for_selector(f"{selector_text}", timeout=6000)
+            wait = page.wait_for_selector(f"{selector_text}", timeout=timeout)
             print(f"[SUCCESS] {name} - complete")
             break
         except PlaywrightTimeoutError:
@@ -282,7 +282,7 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
         # Verify login
         name = "Login"
         selector_list = ["a[aria-label='Strona główna'] >> text=Strona główna", "a[aria-label='Home'] >> text=Home"]
-        if not check_for(name, selector_list, page):
+        if not check_for(name, selector_list, page, 120000):
             context.close()
             browser.close()
             raise Exception(f"{name} - negative")
@@ -389,5 +389,14 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
             print("[WARNING] Story DOES NOT published")
             raise Exception(f"Story DOES NOT published")
 
+        # Update cookies
+        try:
+            cookies = context.cookies()
+            save_cookies_json(service_id, cookies)
+            print(f"[INFO] Cookies refreshed for {service_id}")
+        except Exception as e:
+            print(f"[WARNING] Failed to refresh cookies for {service_id}: {e}")
+
+        # Закрываем браузер
         context.close()
         browser.close()
