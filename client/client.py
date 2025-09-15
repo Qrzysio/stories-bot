@@ -13,13 +13,13 @@
 #
 # Wypełnij te pola:
 
-SERVICE_ID = "102525192808192"
+SERVICE_ID = "193617547354036"
 
 LINK = "https://www.moja-ostroleka.pl"
 
-FILE_URL = "https://www.moja-ostroleka.pl/grafika/fb_posty/relacje/2025/07/30/688a1cfd4875f.jpg"
+FILE_URL = "https://www.moja-ostroleka.pl/grafika/fb_posty/relacje/2025/09/09/68bfcc12f3414.jpg"
 
-HASH = "e0f8b35e6d329fe21cd95b72f465d28183fc1c7b97ef66d055fcdbdc8df62011"
+HASH = "3a0a62296c5bce96c355014756c87216f848f767b733f7e99d72f9f1ae33bb0b"
 
 # Uruchom client.py
 #______________________________________________________________________________________________________
@@ -29,13 +29,12 @@ from send_cookies_api import send_cookies_api
 from send_story_api import send_story_api
 from get_db_data import get_db_data
 COOKIES_FILE_NAME = "cookie.json"
-FILE_NAME = "image.jpg"
 
 #______________________________________________ comment on unnecessary ________________________________
 def main(service_id):
     # send_cookies_api(cookies_path=COOKIES_FILE_NAME, service_id=service_id)
-    # send_story_api(service_id=service_id, image_path=FILE_URL, link=LINK, hash_data=HASH)
-    get_db_data(hash_data=HASH)
+    send_story_api(service_id=service_id, image_path=FILE_URL, link=LINK, hash_data=HASH)
+    # get_db_data(hash_data=HASH)
 #______________________________________________________________________________________________________
 
 

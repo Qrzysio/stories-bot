@@ -7,7 +7,10 @@ __pycache__/
 .gitignore
 client/send_cookies_api.py
 client/cookie.json
+client/get_db_data.py
+client/send_story_api.py
 *__pycache__*
 venv
 client
 stories.db
+config.yaml

@@ -240,12 +240,30 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
     with sync_playwright() as p:
 
         # Launch browser
+
+        # browser = p.chromium.launch(
+        #     headless=headless,
+        #     args = [
+        #         "--disable-notifications",
+        #         "--disable-infobars",
+        #         "--no-default-browser-check",
+        #     ]
+        # )
         browser = p.firefox.launch(
             headless=headless,
-            args = [
-                "--disable-notifications",
-                "--disable-infobars",
+            firefox_user_prefs={
+                "dom.webnotifications.enabled": False,  # отключаем push-уведомления
+                "permissions.default.desktop-notification": 2,
+                "dom.push.enabled": False,
+                "signon.rememberSignons": False,  # отключаем диалог сохранения пароля
+                "browser.shell.checkDefaultBrowser": False,
+                "browser.aboutHomeSnippets.updateUrl": "",
+                "browser.startup.homepage_override.mstone": "ignore",
+                "browser.startup.homepage_welcome_url": "about:blank"
+            },
+            args=[
                 "--no-default-browser-check",
+                "--disable-infobars",
             ]
         )
         context = browser.new_context()

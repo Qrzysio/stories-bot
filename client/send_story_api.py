@@ -6,11 +6,12 @@ def send_story_api(service_id, image_path, link, hash_data):
 
     payload = {
         "service_id": service_id,
+        # "image_path": image_path,   #for old bot
         "image_url": image_path,
         "link": link,
         "hash": hash_data,
         "headless": True,            #not necessarily
-        "format": "film"             #not necessarily
+        "format": "film"            #not necessarily
     }
 
     response = requests.post(url, json=payload)
