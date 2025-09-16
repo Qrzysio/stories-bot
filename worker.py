@@ -70,9 +70,9 @@ def process_story(story, session):
             print(f"[WORKER] Media file converted via ffmpeg to .mp4")
             instagram = fb_profiles[story.service_id].get("has_instagram")
             if instagram is True:
-                num_tabs = 12
+                num_tabs = 13   #
             else:
-                num_tabs = 10
+                num_tabs = 11   #
         else:
             media_file = image_file
             instagram = fb_profiles[story.service_id].get("has_instagram")

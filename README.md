@@ -1,13 +1,14 @@
 # bot-relacje-facebook-playwrite
 
+
 Post story:
 
 curl -X POST http://srv10.mikr.us:20149/post_story -H "Content-Type: application/json" -d '{
     "service_id": "57578687868767",
-    "image_path": "https://www.exampl.pl/grafika/fb_posty/relacje/2025/07/30/688a1cfd4875f.jpg",
+    "image_url": "https://www.exampl.pl/grafika/fb_posty/relacje/2025/07/30/688a1cfd4875f.jpg",
     "link": "https://www.example.pl/art/1753881856/ostroleka-pamieta-uroczystosci-miejskie-juz-w-piatek-1-sierpnia-2025-r",
     "hash": "1234567890009876",
-    "headless": true,
+    "headless": false,          # not necessarily
     "format": "film"             # "image" | "film" - not necessarily
 }'
 
@@ -36,31 +37,18 @@ For developer:
 
 
 create images
-send images
+image to .tar (sudo docker save -o fb_story_api.tar bot-relacje-facebook-playwrite_fb_story_api:latest)
+send images (sudo scp -P 10149 fb_story_api.tar root@halina149.mikrus.xyz:/root/)
+tar to image on server (docker load -i fb_story_api.tar)
 send config.yaml
 send stories.db
 delete "build" from composer and change image name
 send docker-compose
 create /data/cookies/
 mv config.yaml and stories.db to /data/
-unpack images
 composer up
 load cookies for accounts
 
 
-
-
-old compose:
-
-
-
-services:
-  fb_story_bot:
-#    build: .                 #del on server
-    image: mybot:latest
-    container_name: fb_story_bot
-    ports:
-      - "20149:5000"
-    environment:
-      - PYTHONUNBUFFERED=1
-    restart: unless-stopped
+ssh -p 10149 -L 6080:localhost:6080 root@halina149.mikrus.xyz - connect to container by ssh
+http://localhost:6080/vnc.html - see container browser

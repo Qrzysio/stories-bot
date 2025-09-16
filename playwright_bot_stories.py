@@ -214,13 +214,13 @@ def check_for(name, selector_list, page, timeout=6000):
     return True
 
 
-def hover_btn(page, browser, text_list):
+def hover_btn(page, browser, text_list, timeout=15000):
     btn = None
 
     for text in text_list:
         try:
             locator = page.locator(f"div[role=button]:has-text('{text}')").first
-            locator.wait_for(state="visible", timeout=300000)
+            locator.wait_for(state="visible", timeout=timeout)
             time.sleep(0.3)
             locator.scroll_into_view_if_needed()
             locator.hover()
@@ -277,19 +277,27 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
 
         page = context.new_page()
         # Go to FB home with asset_id to open composer directly
-        page.goto(f"{FB_HOME_URL}?asset_id={service_id}", timeout=10000)
+        page.goto(f"{FB_HOME_URL}?asset_id={service_id}", timeout=180000)
 
         # Verify login
         name = "Login"
         selector_list = ["a[aria-label='Strona główna'] >> text=Strona główna", "a[aria-label='Home'] >> text=Home"]
-        if not check_for(name, selector_list, page, 120000):
+        if not check_for(name, selector_list, page, 180000):
             context.close()
             browser.close()
             raise Exception(f"{name} - negative")
 
+        # Update cookies
+        try:
+            cookies = context.cookies()
+            save_cookies_json(service_id, cookies)
+            print(f"[INFO] Cookies refreshed for {service_id}")
+        except Exception as e:
+            print(f"[WARNING] Failed to refresh cookies for {service_id}: {e}")
+
         # Click "Create Story"
         text_list = ["Utwórz relację", "Create Story"]
-        btn = hover_btn(page, browser, text_list)
+        btn = hover_btn(page, browser, text_list, 300000)
         if not btn:
             context.close()
             browser.close()
@@ -297,12 +305,12 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
         btn.click()
 
         # Wait for composer
-        page.wait_for_url(f"**/{STORY_COMPOSER_URL_FRAGMENT}/**", timeout=7000)
+        page.wait_for_url(f"**/{STORY_COMPOSER_URL_FRAGMENT}/**", timeout=180000)
         print("[SUCCESS] Story composer loaded")
 
         # Click "Add photo/video" with Filechooser interception
         text_list = ["Dodaj zdjęcie/film", "Add photo/video"]
-        btn = hover_btn(page, browser, text_list)
+        btn = hover_btn(page, browser, text_list, 300000)
         if not btn:
             context.close()
             browser.close()
@@ -339,17 +347,23 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
         # Link input
         if link:
             link_texts = ["Dodaj link", "Edytuj link", "Add link", "Edit link"]
-            btn = hover_btn(page, browser, link_texts)
+            btn = hover_btn(page, browser, link_texts, 300000)
             if not btn:
                 context.close()
                 browser.close()
                 raise Exception(f"Click 'Add link' btn failed")
             btn.click()
             try:
-                input_field = page.wait_for_selector("input[type='url']", timeout=5000)
-                input_field.fill("")
+                input_field = page.wait_for_selector("input[type='url']", timeout=700000)
+                # input_field.fill("")
+                input_field.fill(link)
                 time.sleep(random.randint(1, 3))
-                input_field.type(link, delay=random.randint(100, 150))
+                # input_field.type(link, delay=random.randint(10, 30))
+                # value = input_field.input_value()
+                # if value != link:
+                #     print("[WARNING] Link typed incorrectly, retrying...")
+                #     input_field.fill(link)
+                # time.sleep(random.randint(1, 3))
                 print(f"[SUCCESS] Link inputed: {link}")
             except Exception:
                 print(f"[ERROR] Can't find link input field")
@@ -359,7 +373,7 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
 
                 # Click "Apply"
             apply_texts = ["Zastosuj", "Apply"]
-            btn = hover_btn(page, browser, apply_texts)
+            btn = hover_btn(page, browser, apply_texts, 700000)
             if not btn:
                 context.close()
                 browser.close()
@@ -383,19 +397,11 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
 
         # Check for published
         try:
-            page.wait_for_url("**/*content_calendar*", timeout=30000)
+            page.wait_for_url("**/*content_calendar*", timeout=300000)
             print(f"[SUCCESS] Story published successfully")
         except PlaywrightTimeoutError:
             print("[WARNING] Story DOES NOT published")
             raise Exception(f"Story DOES NOT published")
-
-        # Update cookies
-        try:
-            cookies = context.cookies()
-            save_cookies_json(service_id, cookies)
-            print(f"[INFO] Cookies refreshed for {service_id}")
-        except Exception as e:
-            print(f"[WARNING] Failed to refresh cookies for {service_id}: {e}")
 
         # Закрываем браузер
         context.close()
