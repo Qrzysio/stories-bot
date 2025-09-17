@@ -79,7 +79,7 @@ def enqueue_story():
             service_id=service_id,
             image_url=image_url,
             link=link,
-            status="pending",
+            story_status="pending",
             headless=headless,
             format=format if format else "image"
         )
@@ -140,7 +140,7 @@ def get_db_data():
                 "service_id": s.service_id,
                 "image_url": s.image_url,
                 "link": s.link,
-                "status": s.status,
+                "story_status": s.story_status,
                 "format": s.format,
                 "retries": s.retries,
                 "max_retries": s.max_retries,
@@ -148,6 +148,9 @@ def get_db_data():
                 "created_at": s.created_at.strftime("%Y-%m-%d %H:%M:%S"),
                 "updated_at": s.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
                 "last_error": s.last_error,
+                "webhook_retries": s.webhook_retries,
+                "webhook_next_attempt": s.webhook_next_attempt,
+                "webhook_status": s.webhook_status,
             })
 
         return jsonify({"status": "success", "stories": result}), 200

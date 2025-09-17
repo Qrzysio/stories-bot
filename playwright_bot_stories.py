@@ -356,8 +356,9 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
             try:
                 input_field = page.wait_for_selector("input[type='url']", timeout=700000)
                 # input_field.fill("")
+                time.sleep(random.randint(1, 4))
                 input_field.fill(link)
-                time.sleep(random.randint(1, 3))
+                time.sleep(random.randint(1, 2))
                 # input_field.type(link, delay=random.randint(10, 30))
                 # value = input_field.input_value()
                 # if value != link:
