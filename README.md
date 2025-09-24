@@ -9,7 +9,7 @@ curl -X POST http://srv10.mikr.us:20149/post_story -H "Content-Type: application
     "link": "https://www.example.pl/art/1753881856/ostroleka-pamieta-uroczystosci-miejskie-juz-w-piatek-1-sierpnia-2025-r",
     "hash": "1234567890009876",
     "headless": false,          # not necessarily
-    "format": "film"             # "image" | "film" - not necessarily
+    "format": "video"             # "image" | "video" - not necessarily
 }'
 
 

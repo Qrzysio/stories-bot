@@ -13,13 +13,13 @@
 #
 # Wypełnij te pola:
 
-SERVICE_ID = "10252512808192"
+SERVICE_ID = "102592"
 
-LINK = "https://www.moja-ostroleka.pl/art/1757317254/czy-systemy-rezerwacji-online-poprawiaja-doswiadczenia-klientow"
+LINK = "https://www.moja-ostroleka.pl/art/1758537053/spoleczenstwo-obywatelskie-w-dzialaniu-konferencja-w-ostrolece"
 
-FILE_URL = "https://www.moja-ostroleka.pl/grafika/fb_posty/relacje/2025/09/08/68be9a03eba14.jpg"
+FILE_URL = "https://www.moja-ostroleka.pl/grafika/fb_posty/relacje/2025/09/24/68d39d2557366.jpg"
 
-HASH = "e0f8b35e6d97ef66d055fcdbdc8df62011"
+HASH = "e0f8b35e6d329fe21cd95b72f7b97ef66d055fcdbdc8df62011"
 
 # Uruchom client.py
 #______________________________________________________________________________________________________
@@ -33,8 +33,8 @@ COOKIES_FILE_NAME = "cookie.json"
 #______________________________________________ comment on unnecessary ________________________________
 def main(service_id):
     # send_cookies_api(cookies_path=COOKIES_FILE_NAME, service_id=service_id)
-    # send_story_api(service_id=service_id, image_path=FILE_URL, link=LINK, hash_data=HASH)
-    get_db_data(hash_data=HASH)
+    send_story_api(service_id=service_id, image_path=FILE_URL, link=LINK, hash_data=HASH)
+    # get_db_data(hash_data=HASH)
 #______________________________________________________________________________________________________
 
 

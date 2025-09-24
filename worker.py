@@ -60,7 +60,7 @@ def process_story(story, session):
             return jsonify({"status": "error", "error": f"{error}"}), 400
 
         # Convert to mp4
-        if story.format == "film":
+        if story.format == "video":
             converted_file, error = convert_to_mp4(image_file)
             if error:
                 story.story_status = "failed"

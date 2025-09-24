@@ -52,10 +52,10 @@ def enqueue_story():
         return jsonify({"status": "error", "error": f"No hash defined for service_id in config file'{service_id}'"}), 400
 
     # Check if format has a valid value
-    valid_format =["image", "film"]
+    valid_format =["image", "video"]
     if format:
         if format not in valid_format:
-            return jsonify({"status": "error", "error": "format value should be 'image' or 'film'"}), 400
+            return jsonify({"status": "error", "error": "format value should be 'image' or 'video'"}), 400
 
     # Comparing hashes
     if client_hash != server_hash:

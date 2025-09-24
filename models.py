@@ -19,5 +19,5 @@ class StoryQueue(Base):
     last_error = Column(Text)
     webhook_retries = Column(Integer, default=0)
     webhook_next_attempt = Column(DateTime)
-    format = Column(String)  # image | film
+    format = Column(String)  # image | video
     webhook_status = Column(String) # webhook_pending, webhook_in_progress, webhook_retry_scheduled, webhooked_successfully, webhook_failed

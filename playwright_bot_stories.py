@@ -1,6 +1,7 @@
 import os
 import random
 import json
+import string
 import subprocess
 import time
 
@@ -214,12 +215,20 @@ def check_for(name, selector_list, page, timeout=6000):
     return True
 
 
-def hover_btn(page, browser, text_list, timeout=15000):
+def hover_btn(
+        page,
+        browser,
+        text_list,
+        timeout=15000,
+        locator=None
+):
+
     btn = None
 
     for text in text_list:
         try:
-            locator = page.locator(f"div[role=button]:has-text('{text}')").first
+            if not locator:
+                locator = page.locator(f"div[role=button]:has-text('{text}')").first
             locator.wait_for(state="visible", timeout=timeout)
             time.sleep(0.3)
             locator.scroll_into_view_if_needed()
@@ -234,6 +243,19 @@ def hover_btn(page, browser, text_list, timeout=15000):
         print("[ERROR] Could not click button in any language")
 
     return btn
+
+
+def type_random_then_clear(page):
+    count = random.randint(1, 5)
+    chars = ''.join(random.choices(string.ascii_letters, k=count))
+
+    for c in chars:
+        page.keyboard.type(c)
+        time.sleep(random.uniform(0.2, 0.9))
+    time.sleep(random.uniform(1, 2.8))
+    for _ in range(count):
+        page.keyboard.press("Backspace")
+        time.sleep(random.uniform(0.2, 0.9))
 
 
 def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None, headless: bool = True):
@@ -340,14 +362,14 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
                     break
             except Exception:
                 pass
-            time.sleep(random.randint(1, 4))
+            time.sleep(random.uniform(1, 4))
         if not element:
             print(f"[WARNING] {name} — no prewiev for {timeout} ms.")
 
         # Link input
         if link:
-            link_texts = ["Dodaj link", "Edytuj link", "Add link", "Edit link"]
-            btn = hover_btn(page, browser, link_texts, 300000)
+            btn_texts = ["Dodaj link", "Edytuj link", "Add link", "Edit link"]
+            btn = hover_btn(page, browser, btn_texts, 300000)
             if not btn:
                 context.close()
                 browser.close()
@@ -356,15 +378,15 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
             try:
                 input_field = page.wait_for_selector("input[type='url']", timeout=700000)
                 # input_field.fill("")
-                time.sleep(random.randint(1, 4))
+                time.sleep(random.uniform(1, 3))
                 input_field.fill(link)
-                time.sleep(random.randint(1, 2))
-                # input_field.type(link, delay=random.randint(10, 30))
+                time.sleep(random.uniform(1, 2))
+                # input_field.type(link, delay=random.uniform(10, 30))
                 # value = input_field.input_value()
                 # if value != link:
                 #     print("[WARNING] Link typed incorrectly, retrying...")
                 #     input_field.fill(link)
-                # time.sleep(random.randint(1, 3))
+                # time.sleep(random.uniform(1, 3))
                 print(f"[SUCCESS] Link inputed: {link}")
             except Exception:
                 print(f"[ERROR] Can't find link input field")
@@ -381,13 +403,88 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
                 raise Exception(f"Click 'Apply' btn failed")
             btn.click()
 
+
+        # Edd sticker
+        if link and num_tabs == 8:
+
+            # Press btn Edytuj
+            time.sleep(random.uniform(1, 2))
+            btn_texts = ["Edytuj", "Edit"]
+            btn = hover_btn(page, browser, btn_texts, 300000)
+            if not btn:
+                context.close()
+                browser.close()
+                raise Exception(f"Click 'Edytuj' btn failed")
+            btn.click()
+
+            # Press btn Naklejki
+            time.sleep(random.uniform(0.5, 1))
+            btn_texts = ["Naklejki", "Stickers"]
+            btn = hover_btn(page, browser, btn_texts, 300000)
+            if not btn:
+                context.close()
+                browser.close()
+                raise Exception(f"Click 'Naklejki' btn failed")
+            btn.click()
+
+            # Press btn Link
+            time.sleep(random.uniform(0.5, 2))
+            btn_texts = ["Link", ]
+            locator = page.locator("div[role=button][aria-label='Create link sticker']")
+            btn = hover_btn(page, browser, btn_texts, 300000, locator)
+            if not btn:
+                context.close()
+                browser.close()
+                raise Exception(f"Click 'Link' btn failed")
+            btn.click()
+            time.sleep(random.uniform(0.5, 2))
+
+            # Insert link
+            for _ in range(2):
+                page.keyboard.press("Tab")
+                time.sleep(random.uniform(0.3, 1))
+
+            time.sleep(random.uniform(1, 2))
+            page.evaluate(f"""() => {{
+                const el = document.activeElement;
+                el.value = "{link}";
+                el.dispatchEvent(new Event('input', {{ bubbles: true }}));
+            }}""")
+            type_random_then_clear(page)
+
+            # Check link insertion
+            current_value = page.evaluate("() => document.activeElement.value")
+            if current_value != link:
+                raise Exception(f"[ERROR] Sticker Link was not inserted! Current value: {current_value}")
+            else:
+                print(f"[SUCCESS] Sticker Link inputed: {link}")
+
+            # Click first "Apply"
+            for _ in range(2):
+                page.keyboard.press("Tab")
+                time.sleep(random.uniform(0.3, 1))
+
+            time.sleep(random.uniform(1, 2))
+            page.keyboard.press("Enter")
+            time.sleep(random.uniform(2, 3))
+
+            # Click second "Apply"
+            apply_texts = ["Zastosuj", "Apply"]
+            btn = hover_btn(page, browser, apply_texts, 700000)
+            if not btn:
+                context.close()
+                browser.close()
+                raise Exception(f"Click 'Apply' btn failed")
+            btn.click()
+
         # Simulation Tab + Enter
         print("[INFO] Simulation Tab + Enter")
+        time.sleep(random.uniform(1, 4))
         try:
             for _ in range(num_tabs):
                 page.keyboard.press("Tab")
-                time.sleep(0.2)
-            time.sleep(random.randint(1, 3))
+                time.sleep(random.uniform(0.5, 1))
+            time.sleep(random.uniform(1, 3))
             page.keyboard.press("Enter")
             print("[SUCCESS] Simulation - complete")
         except Exception:
@@ -404,6 +501,6 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
             print("[WARNING] Story DOES NOT published")
             raise Exception(f"Story DOES NOT published")
 
-        # Закрываем браузер
+        # Close browser
         context.close()
         browser.close()
