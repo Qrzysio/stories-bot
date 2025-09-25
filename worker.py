@@ -73,24 +73,17 @@ def process_story(story, session):
             media_file = converted_file
             print(f"[WORKER] Media file converted via ffmpeg to .mp4")
             instagram = fb_profiles[story.service_id].get("has_instagram")
-            if instagram is True:
-                num_tabs = 13   # -1 if start locally without docker
-            else:
-                num_tabs = 11   # -1 if start locally without docker
         else:
             media_file = image_file
             instagram = fb_profiles[story.service_id].get("has_instagram")
-            if instagram is True:
-                num_tabs = 8
-            else:
-                num_tabs = 6
 
         post_story(
             service_id=story.service_id,
             image_path=media_file,
             link=story.link,
             headless=story.headless,
-            num_tabs=num_tabs
+            has_instagram = instagram,
+            format = story.format
         )
 
         story.updated_at = datetime.now()

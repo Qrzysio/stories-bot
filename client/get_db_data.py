@@ -2,7 +2,7 @@ import requests
 
 
 def get_db_data(hash_data):
-    url = "http://srv10.mikr.us:20149/get_db_data"
+    url = "http://localhost:5000/get_db_data"
 
     payload = {
         "hash": hash_data,

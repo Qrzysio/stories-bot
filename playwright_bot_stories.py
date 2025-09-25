@@ -258,7 +258,57 @@ def type_random_then_clear(page):
         time.sleep(random.uniform(0.2, 0.9))
 
 
-def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None, headless: bool = True):
+def tab_until_exact_target(page, target_text, num_tabs=20):
+
+    print("[INFO] Simulation Tab + Enter with exact text check")
+    try:
+        for i in range(num_tabs):
+            page.keyboard.press("Tab")
+            time.sleep(random.uniform(0.5, 1))
+
+            active_el = page.evaluate_handle("document.activeElement")
+
+            texts = page.evaluate(
+                """el => {
+                    if (!el) return [];
+                    let texts = [];
+                    if (el.innerText) texts.push(el.innerText.trim());
+                    if (el.getAttribute("aria-label")) texts.push(el.getAttribute("aria-label").trim());
+                    if (el.getAttribute("title")) texts.push(el.getAttribute("title").trim());
+                    if (el.getAttribute("placeholder")) texts.push(el.getAttribute("placeholder").trim());
+                    for (let child of el.childNodes) {
+                        if (child.nodeType === Node.TEXT_NODE) {
+                            texts.push(child.textContent.trim());
+                        }
+                    }
+                    return texts.filter(t => t.length > 0);
+                }""",
+                active_el
+            )
+            print(f"[DEBUG] After Tab {i+1}, active element texts: {texts}")
+
+            if any(t.lower() == target_text.lower() for t in texts):
+                time.sleep(random.uniform(0.5, 1.5))
+                page.keyboard.press("Enter")
+                print(f"[SUCCESS] Found EXACT target '{target_text}' and pressed Enter")
+                return True
+
+        print(f"[ERROR] Target text: {target_text} not found within given tabs")
+        raise Exception(f"[ERROR] Target text: {target_text} not found within given tabs")
+
+    except Exception as e:
+        print(f"[ERROR] Simulation Tab + Enter failed: {e}")
+        return False
+
+
+def post_story(
+        service_id: str,
+        image_path: str,
+        has_instagram: bool,
+        format: str,
+        link: str = None,
+        headless: bool = True
+):
     with sync_playwright() as p:
 
         # Launch browser
@@ -377,16 +427,9 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
             btn.click()
             try:
                 input_field = page.wait_for_selector("input[type='url']", timeout=700000)
-                # input_field.fill("")
                 time.sleep(random.uniform(1, 3))
                 input_field.fill(link)
                 time.sleep(random.uniform(1, 2))
-                # input_field.type(link, delay=random.uniform(10, 30))
-                # value = input_field.input_value()
-                # if value != link:
-                #     print("[WARNING] Link typed incorrectly, retrying...")
-                #     input_field.fill(link)
-                # time.sleep(random.uniform(1, 3))
                 print(f"[SUCCESS] Link inputed: {link}")
             except Exception:
                 print(f"[ERROR] Can't find link input field")
@@ -405,7 +448,7 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
 
 
         # Edd sticker
-        if link and num_tabs == 8:
+        if has_instagram and format == "image":
 
             # Press btn Edytuj
             time.sleep(random.uniform(1, 2))
@@ -460,12 +503,7 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
                 print(f"[SUCCESS] Sticker Link inputed: {link}")
 
             # Click first "Apply"
-            for _ in range(2):
-                page.keyboard.press("Tab")
-                time.sleep(random.uniform(0.3, 1))
-
-            time.sleep(random.uniform(1, 2))
-            page.keyboard.press("Enter")
+            tab_until_exact_target(page, "Zastosuj")
             time.sleep(random.uniform(2, 3))
 
             # Click second "Apply"
@@ -478,20 +516,7 @@ def post_story(service_id: str, image_path: str, num_tabs: int, link: str = None
             btn.click()
 
         # Simulation Tab + Enter
-        print("[INFO] Simulation Tab + Enter")
-        time.sleep(random.uniform(1, 4))
-        try:
-            for _ in range(num_tabs):
-                page.keyboard.press("Tab")
-                time.sleep(random.uniform(0.5, 1))
-            time.sleep(random.uniform(1, 3))
-            page.keyboard.press("Enter")
-            print("[SUCCESS] Simulation - complete")
-        except Exception:
-            print(f"[ERROR] Simulation Tab + Enter - negative")
-            context.close()
-            browser.close()
-            raise Exception(f"Simulation Tab + Enter - negative")
+        tab_until_exact_target(page, "Udostępnij")
 
         # Check for published
         try:

@@ -13,13 +13,13 @@
 #
 # Wypełnij te pola:
 
-SERVICE_ID = "102592"
+SERVICE_ID = "102525192808192"
 
-LINK = "https://www.moja-ostroleka.pl/art/1758537053/spoleczenstwo-obywatelskie-w-dzialaniu-konferencja-w-ostrolece"
+LINK = "https://www.moja-ostroleka.pl/art/1758705659/widziales-tego-pieska"
 
-FILE_URL = "https://www.moja-ostroleka.pl/grafika/fb_posty/relacje/2025/09/24/68d39d2557366.jpg"
+FILE_URL = "https://www.moja-ostroleka.pl/grafika/fb_posty/relacje/2025/09/25/68d52d785d43b.jpg"
 
-HASH = "e0f8b35e6d329fe21cd95b72f7b97ef66d055fcdbdc8df62011"
+HASH = "e0f8b35e6d329fe21cd95b72f465d28183fc1c7b97ef66d055fcdbdc8df62011"
 
 # Uruchom client.py
 #______________________________________________________________________________________________________
