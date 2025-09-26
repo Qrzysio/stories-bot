@@ -13,4 +13,5 @@ client/send_story_api.py
 venv
 client
 stories.db
+stories_2.db
 config.yaml

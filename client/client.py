@@ -15,9 +15,9 @@
 
 SERVICE_ID = "102525192808192"
 
-LINK = "https://www.moja-ostroleka.pl/art/1758705659/widziales-tego-pieska"
+LINK = "https://www.moja-ostroleka.pl/art/1758707501/policja-lapala-pijanych-na-ulicach-wczorajsi-kierowcy-a-jeden-z-ponad-2-promilami"
 
-FILE_URL = "https://www.moja-ostroleka.pl/grafika/fb_posty/relacje/2025/09/25/68d52d785d43b.jpg"
+FILE_URL = "https://www.moja-ostroleka.pl/grafika/fb_posty/relacje/2025/09/24/68d44f4adce14.jpg"
 
 HASH = "e0f8b35e6d329fe21cd95b72f465d28183fc1c7b97ef66d055fcdbdc8df62011"
 

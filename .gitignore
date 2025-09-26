@@ -30,6 +30,7 @@ MANIFEST
 .idea/
 config.yaml
 stories.db
+stories_2.db
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

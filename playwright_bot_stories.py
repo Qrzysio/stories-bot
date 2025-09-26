@@ -258,7 +258,7 @@ def type_random_then_clear(page):
         time.sleep(random.uniform(0.2, 0.9))
 
 
-def tab_until_exact_target(page, target_text, num_tabs=20):
+def tab_until_exact_target(page, target_text, num_tabs=40):
 
     print("[INFO] Simulation Tab + Enter with exact text check")
     try:
@@ -502,9 +502,41 @@ def post_story(
             else:
                 print(f"[SUCCESS] Sticker Link inputed: {link}")
 
+            # Insert text for link
+            try:
+                time.sleep(random.uniform(0.5, 1))
+                page.keyboard.press("Tab")
+                time.sleep(random.uniform(0.5, 1))
+                page.evaluate(f"""() => {{
+                    const el = document.activeElement;
+                    el.value = "Kliknij i przeczytaj";
+                    el.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                }}""")
+                type_random_then_clear(page)
+            except Exception:
+                print(f"Insert text for link failed")
+                raise(f"Insert text for link failed")
+
             # Click first "Apply"
             tab_until_exact_target(page, "Zastosuj")
             time.sleep(random.uniform(2, 3))
+
+            # Drag&drop sticker
+            sticker = page.locator("div[data-interactable*='mousedown']:has-text('Kliknij i przeczytaj')").last
+
+            box = sticker.bounding_box()
+            if not box:
+                raise Exception("Cant't find sticker with text 'Kliknij i przeczytaj'")
+
+            x = box["x"] + box["width"] / 2
+            y = box["y"] + box["height"] / 2
+
+            page.mouse.move(x, y)
+            page.mouse.down(button="right")
+            page.mouse.move(x, y + 110, steps=20)
+            page.mouse.up(button="right")
+            print("[SUCCESS] Sticker was positioned successfully")
+            time.sleep(random.uniform(1, 2))
 
             # Click second "Apply"
             apply_texts = ["Zastosuj", "Apply"]
