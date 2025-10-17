@@ -287,11 +287,12 @@ def tab_until_exact_target(page, target_text, num_tabs=40):
             )
             print(f"[DEBUG] After Tab {i+1}, active element texts: {texts}")
 
-            if any(t.lower() == target_text.lower() for t in texts):
-                time.sleep(random.uniform(0.5, 1.5))
-                page.keyboard.press("Enter")
-                print(f"[SUCCESS] Found EXACT target '{target_text}' and pressed Enter")
-                return True
+            for target in target_text:
+                if any(t.lower() == target.lower() for t in texts):
+                    time.sleep(random.uniform(0.5, 1.5))
+                    page.keyboard.press("Enter")
+                    print(f"[SUCCESS] Found EXACT target '{target}' and pressed Enter")
+                    return target
 
         print(f"[ERROR] Target text: {target_text} not found within given tabs")
         raise Exception(f"[ERROR] Target text: {target_text} not found within given tabs")
@@ -461,26 +462,23 @@ def post_story(
             btn.click()
 
             # Press btn Naklejki
-            time.sleep(random.uniform(0.5, 1))
-            btn_texts = ["Naklejki", "Stickers"]
-            btn = hover_btn(page, browser, btn_texts, 300000)
-            if not btn:
-                context.close()
-                browser.close()
-                raise Exception(f"Click 'Naklejki' btn failed")
-            btn.click()
+            time.sleep(random.uniform(0.5, 2))
+            target_text = ["Naklejki", "Link", "Stickers"]
+            btn_text = tab_until_exact_target(page, target_text)
+            time.sleep(random.uniform(0.5, 2))
 
             # Press btn Link
-            time.sleep(random.uniform(0.5, 2))
-            btn_texts = ["Link", ]
-            locator = page.locator("div[role=button][aria-label='Create link sticker']")
-            btn = hover_btn(page, browser, btn_texts, 300000, locator)
-            if not btn:
-                context.close()
-                browser.close()
-                raise Exception(f"Click 'Link' btn failed")
-            btn.click()
-            time.sleep(random.uniform(0.5, 2))
+            if btn_text.lower() == "naklejki":
+                time.sleep(random.uniform(0.5, 2))
+                btn_texts = ["Link", ]
+                locator = page.locator("div[role=button][aria-label='Create link sticker']")
+                btn = hover_btn(page, browser, btn_texts, 300000, locator)
+                if not btn:
+                    context.close()
+                    browser.close()
+                    raise Exception(f"Click 'Link' btn failed")
+                btn.click()
+                time.sleep(random.uniform(0.5, 2))
 
             # Insert link
             for _ in range(2):
@@ -518,7 +516,8 @@ def post_story(
                 raise(f"Insert text for link failed")
 
             # Click first "Apply"
-            tab_until_exact_target(page, "Zastosuj")
+            target_text = ["Zastosuj", "Zapisz", "Apply", "Save"]
+            tab_until_exact_target(page, target_text)
             time.sleep(random.uniform(2, 3))
 
             # Drag&drop sticker
@@ -548,7 +547,8 @@ def post_story(
             btn.click()
 
         # Simulation Tab + Enter
-        tab_until_exact_target(page, "Udostępnij")
+        target_text = ["Udostępnij", "Share"]
+        tab_until_exact_target(page, target_text)
 
         # Check for published
         try:
