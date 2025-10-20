@@ -1,3 +1,17 @@
+Stories bot
+
+Publikuje relacje na profilach Facebook i Instagram.
+Konfiguracja
+
+    Użytkownik zalogowany do FB musi mieć dostęp do odpowiednich profili. Publikacja odbywa się przez META Business Suite
+    Trzeba wyeksportować cookies z .facebook.com z konta zalogowanego użytownika.
+
+    W Google Chrome instalujemy dodatek EditThisCookie (V3)
+    Po zainstalowaniu wchodzimy na Facebooka, a z rozrzeszenia wybieramy "Export". Zawartość skopiowaną do schowka wklejamy do pliku cookie.json
+
+
+
+
 # bot-relacje-facebook-playwrite
 
 
