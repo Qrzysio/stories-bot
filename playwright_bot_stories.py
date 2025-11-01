@@ -26,7 +26,7 @@ CONFIG_PATH = Path("config.yaml")
 FB_HOME_URL = "https://business.facebook.com/latest/home"
 STORY_COMPOSER_URL_FRAGMENT = "story_composer"
 ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"]
-MAX_IMAGE_SIZE = 2 * 1024 * 1024
+MAX_IMAGE_SIZE = 5 * 1024 * 1024
 
 
 def load_config():
@@ -462,7 +462,6 @@ def post_story(
             btn.click()
 
             # Press btn Naklejki
-            time.sleep(random.uniform(0.5, 2))
             target_text = ["Naklejki", "Link", "Stickers"]
             btn_text = tab_until_exact_target(page, target_text)
             time.sleep(random.uniform(0.5, 2))
@@ -553,10 +552,16 @@ def post_story(
         # Check for published
         try:
             page.wait_for_url("**/*content_calendar*", timeout=300000)
-            print(f"[SUCCESS] Story published successfully")
+            page.wait_for_selector(
+                "div[role='heading']:has-text('Terminarz')",
+                timeout=300000
+            )
+            time.sleep(random.uniform(2, 4))
+
+            print("[SUCCESS] 'Terminarz' detected on page")
         except PlaywrightTimeoutError:
-            print("[WARNING] Story DOES NOT published")
-            raise Exception(f"Story DOES NOT published")
+            print("[WARNING] Story DOES NOT published or 'Terminarz' not found")
+            raise Exception("Story DOES NOT published or 'Terminarz' not found")
 
         # Close browser
         context.close()
