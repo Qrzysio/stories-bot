@@ -1,0 +1,28 @@
+FROM mcr.microsoft.com/playwright/python:v1.55.0-jammy
+
+WORKDIR /app
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    xvfb \
+    x11vnc \
+    fluxbox \
+    websockify \
+    novnc \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /data/cookies
+
+ENV DISPLAY=:99
+
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+CMD ["/start.sh"]

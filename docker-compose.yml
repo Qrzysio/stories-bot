@@ -1,0 +1,84 @@
+#version: '3.9'
+#
+#services:
+#  fb_story_bot:
+##    build: .                 #del on server
+#    image: mybot:latest
+#    container_name: fb_story_bot
+#    ports:
+#      - "20149:5000"
+#    environment:
+#      - PYTHONUNBUFFERED=1
+#    restart: unless-stopped
+
+
+
+services:
+#   fb_story_api:
+# #    build:
+# #      context: .
+# #      dockerfile: Dockerfile.api
+#     image: bot-relacje-facebook-playwrite_fb_story_api:old
+#     container_name: fb_story_api
+#     ports:
+#       - "20149:5000"
+#     volumes:
+#       - /data/stories.db:/app/stories.db
+#       - /data/cookies:/data/cookies
+#       - /data/config.yaml:/app/config.yaml
+#     environment:
+#       - PYTHONUNBUFFERED=1
+#     restart: unless-stopped
+
+#   fb_story_worker:
+# #    build:
+# #      context: .
+# #      dockerfile: Dockerfile.worker
+#     image: bot-relacje-facebook-playwrite_fb_story_worker:old
+#     container_name: fb_story_worker
+#     ports:
+#       - "127.0.0.1:6080:6080"   # noVNC web
+#       - "127.0.0.1:5900:5900"   # VNC клиент
+#     volumes:
+#       - /data/stories.db:/app/stories.db
+#       - /data/cookies:/data/cookies
+#       - /data/config.yaml:/app/config.yaml
+#     environment:
+#       - PYTHONUNBUFFERED=1
+#       - DISPLAY=:99
+#     restart: unless-stopped
+
+
+  fb_story_api_2:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    image: bot-relacje-facebook-playwrite_fb_story_api:latest
+    container_name: fb_story_api_2
+    ports:
+      - "30149:5000"
+    volumes:
+      - /data/stories_2.db:/app/stories_2.db
+      - /data/cookies:/data/cookies
+      - /data/config.yaml:/app/config.yaml
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+
+  fb_story_worker_2:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    image: bot-relacje-facebook-playwrite_fb_story_worker:latest
+    container_name: fb_story_worker_2
+    ports:
+      - "127.0.0.1:6081:6081"   # noVNC web
+      - "127.0.0.1:5901:5901"   # VNC клиент
+    volumes:
+      - /data/stories_2.db:/app/stories_2.db
+      - /data/cookies:/data/cookies
+      - /data/config.yaml:/app/config.yaml
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DISPLAY=:100
+    restart: unless-stopped
